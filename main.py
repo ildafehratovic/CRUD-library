@@ -1,10 +1,10 @@
 from sqlmodel import SQLModel, Field, create_engine, Session, select
-
+# gt - >, ge - >=, lt- <, le- <=, max_lenght, min_lenght
 class Book(SQLModel, table=True):
     id: int |  None = Field(default=None, primary_key=True)
-    title: str
+    title: str = Field(min_length=1, max_length=30)
     zanr: str
-    no_pages: int = Field(default=0)
+    no_pages: int = Field(default=10, ge=0)
     rating: float = Field(default=5.0)#opcioni podatak
     in_stock: bool = Field(default=True)
 
@@ -51,7 +51,28 @@ def delete_book(book_title: str):
         session.commit()
         print(f"Deleted book {book_title}")
 
+def edit_book(title:str, new_no_pages:str|None=None, new_zanr: str|None=None, new_rating: float|None=None, new_in_stock: bool|None=None):
+    with Session(engine) as session:
+        statement = select(Book).where(Book.title==title)
+        book=session.exec(statement).first()
+        if book:
+            if title!=None:
+                print("Title is changed")
+            if new_no_pages !=None:
+                print("Number of pages is changed")
+            if new_zanr != None:
+                print("Zanr is changed")
+            if new_rating !=None:
+                print("Rating is changed")
+            if new_in_stock != None:
+                print("In stock is changed")
+            session.add(book)
+            session.commit()
+            return book
+        else:
+            print("Book is not found!")
 
+edit_book(title="Novi Naslov")
 
 list_books()
 # create_book(title="Rat i mir", zanr="classik", no_pages=1200, rating=4.7, in_stock=True)
